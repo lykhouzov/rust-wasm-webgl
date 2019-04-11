@@ -1,37 +1,23 @@
-## Welcome to GitHub Pages
+## Welcome to yet another tutorial of WebGL
 
-You can use the [editor on GitHub](https://github.com/lykhouzov/rust-wasm-webgl/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+This repositoru was create in order to learn Rust language plus WebAssembly.
+My current goal is to convert [well-known tutorial for JavaScript](https://www.tutorialspoint.com/webgl/) into Rust.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### Pre-requirements
+To get a point where I am now, We need to know a little bit about [Rust language](https://www.rust-lang.org/).
+Next step is to read a [book of rustwasm](https://rustwasm.github.io/docs/book/) and complete Game of Life in it.
+And here you are.
 
-### Markdown
+### Goals to achive
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/lykhouzov/rust-wasm-webgl/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+In general the main goal is to convert all WebGL Examples pages
+- WebGL - Drawing Points
+- WebGL - Drawing a Triangle
+- WebGL - Modes of Drawing
+- WebGL - Drawing a Quad
+- WebGL - Colors
+- WebGL - Translation
+- WebGL - Scaling
+- WebGL - Rotation
+- WebGL - Cube Rotation
+- WebGL - Interactive Cube
