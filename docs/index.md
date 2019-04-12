@@ -11,7 +11,7 @@ And here you are.
 ### Goals to achive
 
 In general the main goal is to convert all WebGL Examples pages
-- WebGL - Drawing Points
+- [WebGL - Drawing Points](drawing-points)
 - WebGL - Drawing a Triangle
 - WebGL - Modes of Drawing
 - WebGL - Drawing a Quad
