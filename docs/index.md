@@ -15,7 +15,7 @@ In general the main goal is to convert all WebGL Examples pages
 - [WebGL - Drawing a Triangle](drawing-triangle)
 - [WebGL - Drawing a Quad](drawing-quad)
 - [WebGL - Colors](colors)
-- WebGL - Translation
+- [WebGL - Translation](translation)
 - WebGL - Scaling
 - WebGL - Rotation
 - WebGL - Cube Rotation
