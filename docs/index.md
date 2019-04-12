@@ -12,8 +12,7 @@ And here you are.
 
 In general the main goal is to convert all WebGL Examples pages
 - [WebGL - Drawing Points](drawing-points)
-- WebGL - Drawing a Triangle
-- WebGL - Modes of Drawing
+- [WebGL - Drawing a Triangle](drawing-triangle)
 - WebGL - Drawing a Quad
 - WebGL - Colors
 - WebGL - Translation
