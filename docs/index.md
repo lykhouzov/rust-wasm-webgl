@@ -18,5 +18,5 @@ In general the main goal is to convert all WebGL Examples pages
 - [WebGL - Translation](translation)
 - [WebGL - Scaling](scaling)
 - [WebGL - Rotation](rotation)
-- WebGL - Cube Rotation
+- [WebGL - Cube Rotation](cube-rotation)
 - WebGL - Interactive Cube
