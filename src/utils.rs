@@ -1,4 +1,5 @@
-
+use wasm_bindgen::prelude::Closure;
+use wasm_bindgen::JsCast;
 use web_sys::{WebGlProgram, WebGlRenderingContext, WebGlShader};
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -91,4 +92,14 @@ pub fn link_program(
             .get_program_info_log(&program)
             .unwrap_or_else(|| String::from("Unknown error creating program object")))
     }
+}
+
+pub fn window() -> web_sys::Window {
+    web_sys::window().expect("no global `window` exists")
+}
+
+pub fn request_animation_frame(f: &Closure<FnMut(f32)>) {
+    window()
+        .request_animation_frame(f.as_ref().unchecked_ref())
+        .expect("should register `requestAnimationFrame` OK");
 }
