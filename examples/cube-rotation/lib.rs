@@ -4,20 +4,14 @@ extern crate wasm_bindgen;
 extern crate web_sys;
 use js_sys::WebAssembly;
 use std::cell::RefCell;
-use std::f32::consts::PI;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{
-    EventTarget, MouseEvent, WebGlBuffer, WebGlProgram, WebGlRenderingContext, WebGlUniformLocation,
-};
+use web_sys::{WebGlBuffer, WebGlProgram, WebGlRenderingContext, WebGlUniformLocation};
 
 #[allow(dead_code)]
 mod utils;
 use utils::{compile_shader, link_program, request_animation_frame, set_panic_hook};
-
-const AMORTIZATION: f32 = 0.95;
-
 #[derive(Debug, Clone)]
 struct ProgramInfo(
     WebGlProgram,
@@ -27,7 +21,7 @@ struct ProgramInfo(
         Result<WebGlUniformLocation, String>,
     ),
 );
-#[derive(Debug, Clone)]
+#[derive(Debug,Clone)]
 struct Buffers(WebGlBuffer, WebGlBuffer, WebGlBuffer);
 #[allow(non_snake_case)]
 #[wasm_bindgen(start)]
@@ -94,99 +88,24 @@ pub fn start() -> Result<(), JsValue> {
     };
     // Here's where we call the routine that builds all the
     // objects we'll be drawing.
-    let buffers: Buffers = initBuffers(&gl)?;
+    let buffers:Buffers = initBuffers(&gl)?;
 
     // Draw the scene repeatedly
     let f = Rc::new(RefCell::new(None));
     let g = f.clone();
-    let drag = Rc::new(RefCell::new(false));
-    let theta = Rc::new(RefCell::new(0.0));
-    let phi = Rc::new(RefCell::new(0.0));
-    let dX = Rc::new(RefCell::new(0.0));
-    let dY = Rc::new(RefCell::new(0.0));
-    let canvas_width = Rc::new(RefCell::new(canvas.width() as f32));
-    let canvas_height = Rc::new(RefCell::new(canvas.height() as f32));
+    *g.borrow_mut() = Some(Closure::wrap(Box::new(move |d| {
+        drawScene(
+            &gl.clone(),
+            programmInfo.clone(),
+            buffers.clone(),
+            d * 0.001f32,
+        )
+        .unwrap();
+        // Schedule ourself for another requestAnimationFrame callback.
+        request_animation_frame(f.borrow().as_ref().unwrap());
+    }) as Box<FnMut(f32)>));
 
-    // get canvas as event target
-    let event_target: EventTarget = canvas.into();
-
-    // Add event listeners
-    // MOUSEDOWN
-    {
-        let drag = drag.clone();
-        let mousedown_cb = Closure::wrap(Box::new(move |_event: MouseEvent| {
-            *drag.borrow_mut() = true;
-        }) as Box<dyn FnMut(MouseEvent)>);
-        event_target
-            .add_event_listener_with_callback("mousedown", mousedown_cb.as_ref().unchecked_ref())
-            .unwrap();
-        mousedown_cb.forget();
-    }
-    // MOUSEUP and MOUSEOUT
-    {
-        let drag = drag.clone();
-        let mouseup_cb = Closure::wrap(Box::new(move |_event: MouseEvent| {
-            *drag.borrow_mut() = false;
-        }) as Box<dyn FnMut(MouseEvent)>);
-        event_target
-            .add_event_listener_with_callback("mouseup", mouseup_cb.as_ref().unchecked_ref())
-            .unwrap();
-        event_target
-            .add_event_listener_with_callback("mouseout", mouseup_cb.as_ref().unchecked_ref())
-            .unwrap();
-        mouseup_cb.forget();
-    }
-    // MOUSEMOVE
-    {
-        let theta = theta.clone();
-        let phi = phi.clone();
-        let canvas_width = canvas_width.clone();
-        let canvas_height = canvas_height.clone();
-        let dX = dX.clone();
-        let dY = dY.clone();
-        let drag = drag.clone();
-        let mousemove_cb = Closure::wrap(Box::new(move |event: MouseEvent| {
-            if *drag.borrow() {
-                let cw = *canvas_width.borrow();
-                let ch = *canvas_height.borrow();
-                *dX.borrow_mut() = (event.movement_x() as f32) * 2.0 * PI / cw;
-                *dY.borrow_mut() = (event.movement_y() as f32) * 2.0 * PI / ch;
-                *theta.borrow_mut() += *dX.borrow();
-                *phi.borrow_mut() += *dY.borrow();
-            }
-        }) as Box<dyn FnMut(web_sys::MouseEvent)>);
-        event_target
-            .add_event_listener_with_callback("mousemove", mousemove_cb.as_ref().unchecked_ref())
-            .unwrap();
-        mousemove_cb.forget();
-    }
-    // RequestAnimationFrame
-    {
-        let dX = dX.clone();
-        let dY = dY.clone();
-        let drag = drag.clone();
-        // Request animation frame
-        *g.borrow_mut() = Some(Closure::wrap(Box::new(move |_d| {
-            if !*drag.borrow() {
-                *dX.borrow_mut() *= AMORTIZATION;
-                *dY.borrow_mut() *= AMORTIZATION;
-                *theta.borrow_mut() += *dX.borrow();
-                *phi.borrow_mut() += *dY.borrow();
-            }
-            drawScene(
-                &gl.clone(),
-                programmInfo.clone(),
-                buffers.clone(),
-                *theta.borrow(),
-                *phi.borrow(),
-            )
-            .unwrap();
-            // Schedule ourself for another requestAnimationFrame callback.
-            request_animation_frame(f.borrow().as_ref().unwrap());
-        }) as Box<FnMut(f32)>));
-
-        request_animation_frame(g.borrow().as_ref().unwrap());
-    }
+    request_animation_frame(g.borrow().as_ref().unwrap());
     Ok(())
 }
 #[allow(non_snake_case)]
@@ -318,13 +237,11 @@ fn initBuffers(gl: &WebGlRenderingContext) -> Result<Buffers, JsValue> {
     Ok(Buffers(positionBuffer, colorBuffer, indexBuffer))
 }
 #[allow(non_snake_case)]
-#[allow(dead_code)]
 fn drawScene(
     gl: &WebGlRenderingContext,
     programInfo: ProgramInfo,
     buffers: Buffers,
-    theta: f32,
-    phi: f32,
+    deltaTime: f32,
 ) -> Result<(), JsValue> {
     use std::f32::consts::PI;
     let Buffers(positionBuffer, colorBuffer, indexBuffer) = buffers;
@@ -336,7 +253,7 @@ fn drawScene(
     gl.clear_color(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clear_depth(1.0); // Clear everything
     gl.enable(WebGlRenderingContext::DEPTH_TEST); // Enable depth testing
-                                                  // gl.depth_func(WebGlRenderingContext::LEQUAL); // Near things obscure far things
+    gl.depth_func(WebGlRenderingContext::LEQUAL); // Near things obscure far things
 
     // Clear the canvas before we start drawing on it.
 
@@ -353,11 +270,11 @@ fn drawScene(
         .canvas()
         .unwrap()
         .dyn_into::<web_sys::HtmlCanvasElement>()?;
-    gl.viewport(0, 0, canvas.width() as i32, canvas.height() as i32);
+
     let aspect: f32 = canvas.width() as f32 / canvas.height() as f32;
-    let zNear = 1.0;
+    let zNear = 0.1;
     let zFar = 100.0;
-    let mut projectionMatrix = mat4::new_zero();
+    let mut projectionMatrix = mat4::new_identity();
 
     mat4::perspective(&mut projectionMatrix, &fieldOfView, &aspect, &zNear, &zFar);
 
@@ -367,6 +284,7 @@ fn drawScene(
 
     // Now move the drawing position a bit to where we want to
     // start drawing the square.
+    let cubeRotation = deltaTime;
     let mat_to_translate = modelViewMatrix.clone();
     mat4::translate(
         &mut modelViewMatrix, // destination matrix
@@ -375,17 +293,21 @@ fn drawScene(
     ); // amount to translate
 
     let mat_to_rotate = modelViewMatrix.clone();
-    mat4::rotate_x(
-        &mut modelViewMatrix, // destination matrix
-        &mat_to_rotate,       // matrix to rotate
-        &phi,
-    );
+    mat4::rotate(
+        &mut modelViewMatrix,  // destination matrix
+        &mat_to_rotate,        // matrix to rotate
+        &(0.0 * cubeRotation), // amount to rotate in radians
+        &(0.0 * cubeRotation),
+        &(1.0 * cubeRotation),
+    ); // axis to rotate around (Z)
     let mat_to_rotate = modelViewMatrix.clone();
-    mat4::rotate_y(
-        &mut modelViewMatrix, // destination matrix
-        &mat_to_rotate,       // matrix to rotate
-        &theta,
-    );
+    mat4::rotate(
+        &mut modelViewMatrix,        // destination matrix
+        &mat_to_rotate,              // matrix to rotate
+        &(0.0 * cubeRotation * 0.7), // amount to rotate in radians
+        &(1.0 * cubeRotation * 0.7),
+        &(0.0 * cubeRotation * 0.7),
+    ); // axis to rotate around (X)
 
     // Tell WebGL how to pull out the positions from the position
     // buffer into the vertexPosition attribute

@@ -47,7 +47,9 @@ features = [
   'WebGlProgram',
   'WebGlShader',
   'WebGlUniformLocation',
-  'console'
+  'console',
+  'Event',
+  'MouseEventInit'
 ]
 
 [dev-dependencies]
