@@ -1,6 +1,6 @@
 ## Welcome to yet another tutorial of WebGL
 
-This repositoru was create in order to learn Rust language plus WebAssembly.
+This repository was create in order to learn Rust language plus WebAssembly.
 My current goal is to convert [well-known tutorial for JavaScript](https://www.tutorialspoint.com/webgl/) into Rust.
 
 ### Pre-requirements
