@@ -20,3 +20,8 @@ In general the main goal is to convert all WebGL Examples pages
 - [WebGL - Rotation](rotation)
 - [WebGL - Cube Rotation](cube-rotation)
 - [WebGL - Interactive Cube](interactive-cube)
+
+
+### Example
+<canvas id="canvas" height="600" width="800"></canvas>
+<script src="../index.js"></script>
